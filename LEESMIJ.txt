@@ -1,0 +1,24 @@
+GITHUB PAGES - CURSISTEN NAAR WHATSAPP BUSINESS
+
+1. Plaats index.html én sw.js samen in de hoofdmap van een GitHub-repository.
+2. Schakel GitHub Pages in voor die repository.
+3. Open het GitHub Pages-adres in een recente browser.
+4. Laad de Excel-export en controleer de contacten.
+5. Kies 'QR-code voor telefoon' en scan de code.
+6. Vul op de telefoon de aparte overdrachtscode van acht tekens in.
+7. Kies 'Contactbestand openen' en selecteer Contacten of Google Contacten.
+
+BELANGRIJK BIJ DEZE VERSIE
+sw.js moet naast index.html op GitHub staan. Dit kleine hulpbestand zorgt dat
+de telefoon het contactbestand als een echte download herkent. Het bewaart het
+contactbestand hoogstens twee minuten in het tijdelijke geheugen van de browser
+en verstuurt niets naar GitHub of een andere server.
+
+De Excelgegevens worden lokaal verwerkt. De contactgegevens worden eerst
+versleuteld en niet als bestand naar GitHub geüpload. Alleen de versleutelde
+gegevens zitten tijdelijk in het #-gedeelte van de QR-link; dat gedeelte wordt
+niet naar de webserver gestuurd en wordt na openen uit de adresbalk verwijderd.
+Zonder de afzonderlijke overdrachtscode kan de QR-code niet worden ontsleuteld.
+
+Als een groep uitzonderlijk te groot is voor een betrouwbare QR-code, blijft
+de gewone downloadknop beschikbaar.
