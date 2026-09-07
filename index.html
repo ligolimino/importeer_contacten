@@ -100,7 +100,24 @@ body.receiving .creator-only { display: none !important; }
 @media print { .setup, .toolbar button, .help { display: none !important; } .shell { width: 100%; margin: 0; } .panel { box-shadow: none; } .table-wrap { max-height: none; overflow: visible; } th { position: static; } }
 </style>
 </head>
-<body>
+<body>function shortTimestamp() {
+  const d = new Date();
+  const two = n => String(n).padStart(2, "0");
+
+  return [
+    two(d.getFullYear() % 100),
+    two(d.getMonth() + 1),
+    two(d.getDate())
+  ].join("") + "-" + [
+    two(d.getHours()),
+    two(d.getMinutes()),
+    two(d.getSeconds())
+  ].join("");
+}
+
+function vcfFilename(prefix) {
+  return `${safeName(prefix || "cursisten")}_${shortTimestamp()}.vcf`;
+}
   <main class="shell">
     <header class="topbar"><div class="mark">W</div><div><h1>Cursisten naar contacten</h1><p class="subtitle">Maak van een cursistenexport één contactbestand voor WhatsApp Business.</p></div></header>
     <section class="panel creator-only">
@@ -1547,6 +1564,25 @@ let receivedPayload = null;
 let encryptedTransfer = null;
 
 const safeName = value => String(value || "contacten").trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, " ");
+function shortTimestamp() {
+  const d = new Date();
+  const two = n => String(n).padStart(2, "0");
+
+  return [
+    two(d.getFullYear() % 100),
+    two(d.getMonth() + 1),
+    two(d.getDate())
+  ].join("") + "-" + [
+    two(d.getHours()),
+    two(d.getMinutes()),
+    two(d.getSeconds())
+  ].join("");
+}
+
+function vcfFilename(prefix) {
+  return `${safeName(prefix || "cursisten")}_${shortTimestamp()}.vcf`;
+}
+	  
 const selectedPrefix = () => {
   const mode = document.querySelector('input[name="prefixMode"]:checked').value;
   return mode === "course" ? detectedCourse : customPrefixInput.value.trim();
@@ -1560,16 +1596,23 @@ function readyContacts() {
   return contacts.filter(c => c.selected && c.valid && c.contactName.trim()).map(c => ({ ...c, contactName: c.contactName.trim() }));
 }
 function makeVcfFile(items, prefix) {
-  return new File([core.makeVcf(items, prefix)], `${safeName(prefix || "cursisten")}.vcf`, { type: "text/vcard;charset=utf-8" });
+  return new File(
+    [core.makeVcf(items, prefix)],
+    vcfFilename(prefix),
+    { type: "text/vcard;charset=utf-8" }
+  );
 }
+
 function downloadVcf(items, prefix) {
-  const blob = makeVcfFile(items, prefix);
+  const file = makeVcfFile(items, prefix);
   const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `${safeName(prefix || "cursisten")}.vcf`;
+
+  link.href = URL.createObjectURL(file);
+  link.download = file.name;
   link.click();
+
   setTimeout(() => URL.revokeObjectURL(link.href), 2000);
-  return link.download;
+  return file.name;
 }
 async function prepareRealContactDownload(items, prefix) {
   if (!("serviceWorker" in navigator) || location.protocol !== "https:") return null;
@@ -1579,7 +1622,7 @@ async function prepareRealContactDownload(items, prefix) {
   if (!worker) return null;
   const tokenBytes = crypto.getRandomValues(new Uint8Array(16));
   const token = bytesToBase64Url(tokenBytes);
-  const filename = `${safeName(prefix || "cursisten")}.vcf`;
+  const filename = vcfFilename(prefix);
   const vcf = core.makeVcf(items, prefix);
   await new Promise((resolve, reject) => {
     const channel = new MessageChannel();
